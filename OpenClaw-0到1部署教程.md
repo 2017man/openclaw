@@ -510,6 +510,36 @@ openclaw onboard
    - `channels.feishu.allowFrom: ["ou_你的open_id"]`
    - 你的 open_id 可在飞书后台或 `openclaw logs` 收到消息时的日志里看到。保存后重启 Gateway。
 
+#### 4.2.10 飞书能收消息但不回复（只收不回）
+
+若**网页 Dashboard 发消息能正常回复**，但**飞书里发消息只收不回**，多半是「回复没有正确发回飞书通道」。
+
+**按顺序排查：**
+
+1. **看完整日志（避免被截断）**  
+   发消息时用更大限制看「收到消息」之后有没有 dispatch/reply/error：
+   ```powershell
+   openclaw logs --follow --max-bytes 500000 --limit 300
+   ```
+   关注是否有 `replies=0`、`dispatch complete`、`sendMessageFeishu`、或 permission/403 等报错。
+
+2. **尝试关闭流式阻塞（已知 workaround）**  
+   部分版本下，飞书回复会被误判为「无回复」而发不出去，可尝试在配置里关掉默认流式阻塞：
+   - 编辑 `%USERPROFILE%\.openclaw\openclaw.json`，在合适位置（如顶层或 `agents.defaults`）增加或改为：
+     ```json
+     "agents": { "defaults": { "blockStreamingDefault": "off" } }
+     ```
+   - 或 CLI：`openclaw config set agents.defaults.blockStreamingDefault off`
+   - 保存后执行 `openclaw gateway restart`，再在飞书里发一条试一次。
+
+3. **配对（Pairing）**  
+   执行 `openclaw pairing list`，若有飞书用户/会话待批准，执行 `openclaw pairing approve <id>` 后再试。
+
+4. **飞书应用发消息权限**  
+   在飞书开放平台确认应用已开通「以应用身份发消息」类权限（如 `im:message:send_as_bot`），并已发布。
+
+**说明**：飞书通道「只收不回」在社区有反馈（如 GitHub #31859、#38980），可能与回复路由/流式计数有关；若上述仍无效，可关注 OpenClaw 更新或对应 issue 的修复说明。
+
 ---
 
 ### 4.3 第二步三：安装 Skills（可选）
