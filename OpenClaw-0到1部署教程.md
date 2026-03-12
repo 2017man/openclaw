@@ -29,19 +29,19 @@
 
 ## 文档结构（方便跳读）
 
-| 章节 | 内容 |
-|------|------|
-| **一、环境检查** | 安装前：Node、npm、已有目录处理 |
-| **二、安装 OpenClaw** | 一键安装 / npm 安装、验证 |
-| **三、第一步** | 运行 onboard 向导并**全部跳过**，手动启动 Gateway，打开 Dashboard |
-| **四、第二步** | 按优先级：4.1 模型 → 4.2 飞书 → 4.3 Skills → 4.4 Hooks |
-| **五** | 让 AI 能执行工具命令（创建文件等） |
-| **六** | **后续日常**：怎么启动 OpenClaw、怎么管理模型 |
-| **七** | 常用命令速查 |
-| **八** | 常见坑汇总 |
-| **九** | 附录：国内环境安装 Node.js / npm |
-| **十** | 推荐学习资源 |
-| **十一** | 建议执行顺序总览（可打印照着做） |
+| 章节                  | 内容                                                              |
+| --------------------- | ----------------------------------------------------------------- |
+| **一、环境检查**      | 安装前：Node、npm、已有目录处理                                   |
+| **二、安装 OpenClaw** | 一键安装 / npm 安装、验证                                         |
+| **三、第一步**        | 运行 onboard 向导并**全部跳过**，手动启动 Gateway，打开 Dashboard |
+| **四、第二步**        | 按优先级：4.1 模型 → 4.2 飞书 → 4.3 Skills → 4.4 Hooks            |
+| **五**                | 让 AI 能执行工具命令（创建文件等）                                |
+| **六**                | **后续日常**：怎么启动 OpenClaw、怎么管理模型                     |
+| **七**                | 常用命令速查                                                      |
+| **八**                | 常见坑汇总                                                        |
+| **九**                | 附录：国内环境安装 Node.js / npm                                  |
+| **十**                | 推荐学习资源                                                      |
+| **十一**              | 建议执行顺序总览（可打印照着做）                                  |
 
 ---
 
@@ -93,10 +93,12 @@ iwr -useb https://openclaw.ai/install.ps1 | iex
 ```
 
 **执行时会做什么**：
+
 - 从官方拉取安装脚本并执行
 - 会安装 `openclaw` 到全局 npm，并可能配置 PATH
 
 **可能需要填写的**：
+
 - 一般无需人工输入，等待完成即可
 
 **坑 1：执行策略限制**  
@@ -151,6 +153,7 @@ openclaw onboard --install-daemon
 ```
 
 **执行时会做什么**：
+
 - 创建 `~\.openclaw` 下的配置文件
 - 可选安装守护进程（Windows 上可能是计划任务或服务）
 - 启动交互式配置向导
@@ -221,8 +224,9 @@ Press `space` to select, `enter` to submit
 
 **第一步建议**：用方向键选中 **Skip for now**，然后提交。
 
-**坑：按 Enter 没反应时**  
-- 先按一次 **空格 (Space)** 再按 **Enter**（有些 TUI 需要先“勾选”再提交）。  
+**坑：按 Enter 没反应时**
+
+- 先按一次 **空格 (Space)** 再按 **Enter**（有些 TUI 需要先“勾选”再提交）。
 - 若仍无反应：按 **Ctrl+C** 退出向导，重新执行 `openclaw onboard`，到这一步再试；或跳过向导，稍后需配飞书时用 `openclaw channels add`。
 
 ---
@@ -237,6 +241,32 @@ I understand this is personal-by-default and shared/multi-user use requires lock
 
 **含义**：确认为「个人使用」；多人/共享使用需额外锁定配置。  
 **操作**：选 **Continue** 继续即可（个人飞书 + 家里笔记本就是个人使用）。
+
+---
+
+#### 步骤 6.6：Filter models by provider（按厂商筛选模型）
+
+若向导里出现 **「Filter models by provider」** 或类似选项：
+
+- **含义**：按 AI 厂商（provider）筛一下后面要显示的模型列表，方便只看到你打算用的那几家，减少干扰。
+- **操作**：
+  - **想少一点干扰**：勾选你准备用的厂商（如 **MiniMax**、**Kimi / Moonshot**、**DeepSeek**、**Anthropic**、**OpenAI** 等），其余不勾选。
+  - **想一次看全**：不勾选任何筛选，或选「全部 / All」，继续。
+- **说明**：此处只影响「接下来列表里显示哪些模型」，不影响已保存的配置；之后随时可用 `openclaw onboard` 或 `openclaw models add` 加新厂商。
+
+---
+
+#### 步骤 6.7：Config handling（已有配置时的处理方式）
+
+若你**已经配置过模型**（或 Channel、Skills 等），再次运行 `openclaw onboard` 时可能看到 **「Config handling」** 或类似选项：
+
+- **含义**：检测到已有配置，询问本次是「保留/合并」还是「覆盖」。
+- **推荐（已有配置、只想加新东西时）**：
+  - 选 **Merge / Use existing / 保留现有并合并** 或 **Skip config**：保留已有模型和 Key，只在本次向导里补加新项（如新厂商、新 Channel）。
+  - 这样不会丢已有模型，之后在列表里还能看到并选用。
+- **慎选**：
+  - **Overwrite / Replace**：会用本次向导的配置**覆盖**原有配置，已有模型/Key 可能被清掉，除非你确定要重配一遍。
+- **说明**：若没有「Config handling」这一步，说明是首次配置，按向导正常选即可。
 
 ---
 
@@ -268,6 +298,7 @@ openclaw gateway --port 18790
 4. 在浏览器中访问：**http://127.0.0.1:18790**（若你用 18789 则访问 18789）。
 
 **说明**：
+
 - 默认端口 18789 若被占用或无法访问，改用 **18790** 即可，第一步以能打开界面为准。
 - 关掉运行 `openclaw gateway` 的窗口 = 关掉 Gateway，页面会再次无法访问；下次要用 Dashboard 时重新执行上述命令即可。
 
@@ -279,12 +310,12 @@ openclaw gateway --port 18790
 
 第二步在「能打开图形界面」之后进行，建议**按下面优先级**逐项完成，每完成一项可先验证再继续。
 
-| 优先级 | 配置项 | 必选/可选 | 说明 |
-|--------|--------|-----------|------|
-| 1 | **AI 模型与厂商** | 必选 | 不配则无法与 AI 对话 |
-| 2 | **Channel（飞书）** | 必选（你的场景） | 不配则无法从单位用飞书指挥家里 |
-| 3 | **Skills** | 可选 | 扩展能力，按需安装 |
-| 4 | **Hooks** | 可选 | 自动化钩子，按需配置 |
+| 优先级 | 配置项              | 必选/可选        | 说明                           |
+| ------ | ------------------- | ---------------- | ------------------------------ |
+| 1      | **AI 模型与厂商**   | 必选             | 不配则无法与 AI 对话           |
+| 2      | **Channel（飞书）** | 必选（你的场景） | 不配则无法从单位用飞书指挥家里 |
+| 3      | **Skills**          | 可选             | 扩展能力，按需安装             |
+| 4      | **Hooks**           | 可选             | 自动化钩子，按需配置           |
 
 ---
 
@@ -312,13 +343,13 @@ openclaw models add
 
 常见选项示例：
 
-| 选项 | 适用场景 | 说明 |
-|------|----------|------|
-| **MiniMax M2.5(CN)** | 国内、中文 | 直连，有免费额度 |
-| **Kimi** | 国内、长文本 | 月之暗面 |
-| **DeepSeek** | 国内、代码/推理 | 代码能力强 |
-| **Claude / OpenAI / Gemini** | 需国际网络 | 需可访问对应 API |
-| **Ollama** | 本地、离线 | 本机安装 Ollama 后使用 |
+| 选项                         | 适用场景        | 说明                   |
+| ---------------------------- | --------------- | ---------------------- |
+| **MiniMax M2.5(CN)**         | 国内、中文      | 直连，有免费额度       |
+| **Kimi**                     | 国内、长文本    | 月之暗面               |
+| **DeepSeek**                 | 国内、代码/推理 | 代码能力强             |
+| **Claude / OpenAI / Gemini** | 需国际网络      | 需可访问对应 API       |
+| **Ollama**                   | 本地、离线      | 本机安装 Ollama 后使用 |
 
 **建议**：国内用户优先选 **MiniMax** 或 **Kimi**，无需翻墙。
 
@@ -329,13 +360,13 @@ openclaw models add
 
 **获取方式**：
 
-| 厂商 | 开放平台地址 |
-|------|--------------|
-| MiniMax | https://platform.minimax.io |
-| Kimi | https://platform.moonshot.cn |
+| 厂商     | 开放平台地址                  |
+| -------- | ----------------------------- |
+| MiniMax  | https://platform.minimax.io   |
+| Kimi     | https://platform.moonshot.cn  |
 | DeepSeek | https://platform.deepseek.com |
-| Claude | https://console.anthropic.com |
-| OpenAI | https://platform.openai.com |
+| Claude   | https://console.anthropic.com |
+| OpenAI   | https://platform.openai.com   |
 
 **坑**：Key 错误会提示验证失败，需重新复制（含完整字符、无换行）。
 
@@ -378,6 +409,7 @@ openclaw gateway --port 18790
    - `im:message:send_as_bot` - 以机器人身份发消息
 
 若希望 OpenClaw 读飞书文档，可额外添加：
+
 - `docs:document.content:read`
 
 3. 添加后点击「批量开通」，对需要的权限全部开通
@@ -401,6 +433,7 @@ openclaw gateway --port 18790
 4. **重要**：选择「使用长连接接收事件」，即 WebSocket 模式
 
 **为什么选长连接**：
+
 - OpenClaw 主动连飞书，家里笔记本无需公网 IP
 - 不需要内网穿透或暴露端口
 
@@ -430,21 +463,52 @@ openclaw onboard
 ```
 
 在向导中选择 **飞书 / Feishu**，按提示输入：
+
 - **App ID**：`cli_xxxxxx`
 - **App Secret**：之前保存的密钥
 
 **坑**：填写时注意没有多余空格。
 
-#### 4.2.7 把机器人拉进会话
+#### 4.2.7 Group chat allowlist (chat_ids)（群聊白名单）
+
+配置飞书时若出现 **「Group chat allowlist (chat_ids)」** 或「群聊白名单」：
+
+- **含义**：只允许在这些**群聊**里响应机器人；不填或留空通常表示「不限制」或「仅私聊」，视版本而定。
+- **怎么填**：
+  - **只在自己建的群用**：把允许的飞书群聊 ID 填进去，多个用英文逗号分隔，例如：`oc_xxx,oc_yyy`。  
+    群聊 ID 获取方式：在飞书群设置里查看，或从机器人收到的消息事件里看 `chat_id`（需开发者权限/日志）。
+  - **不限制群、或只私聊**：留空不填，或填 `*`（以实际向导说明为准）。
+- **说明**：私聊一般不受此 allowlist 限制；若只希望机器人响应特定群，就只填这些群的 `chat_id`。
+
+#### 4.2.8 把机器人拉进会话
 
 1. 在飞书中搜索你的机器人（应用名称或机器人名称）
 2. 创建私聊或群聊，把机器人加进去
 3. 发一条消息测试，如：`你好`
 
 **若机器人无响应**：
+
 - 执行 `openclaw gateway restart`（或重新执行 `openclaw gateway --port 18790`）
 - 执行 `openclaw logs --follow` 查看报错
 - 检查飞书应用是否已发布、权限是否已开通
+
+#### 4.2.9 飞书发消息没反应：Doctor 提示 allowlist 为空
+
+若执行 `openclaw gateway status` 时出现 **Doctor warnings**：
+
+- **提示**：`channels.feishu.groupPolicy is "allowlist" but groupAllowFrom (and allowFrom) is empty`
+- **含义**：飞书通道当前是「白名单模式」，但白名单为空，所以**所有群消息（甚至部分私聊）会被静默丢弃**，机器人不会回复。
+
+**解决办法（二选一）**：
+
+1. **先放开限制（推荐先这样试）**：把群策略改为「开放」，允许所有群/私聊发来的消息：
+   - 编辑配置文件 `%USERPROFILE%\.openclaw\openclaw.json`（Windows）或 `~/.openclaw/openclaw.json`，在 `channels.feishu` 下把 `groupPolicy` 改为 `"open"`，或增加 `"groupPolicy": "open"`。
+   - 或使用 CLI（以你当前版本支持的为准）：`openclaw config set channels.feishu.groupPolicy open`
+   - 保存后执行 `openclaw gateway restart`，再在飞书里发消息测试。
+2. **坚持用白名单**：在配置里为飞书填写 `groupAllowFrom` 或 `allowFrom`（你的 open_id 或允许的群 chat_id），例如：
+   - `channels.feishu.groupAllowFrom: ["oc_群id1", "oc_群id2"]` 或
+   - `channels.feishu.allowFrom: ["ou_你的open_id"]`
+   - 你的 open_id 可在飞书后台或 `openclaw logs` 收到消息时的日志里看到。保存后重启 Gateway。
 
 ---
 
@@ -556,6 +620,7 @@ openclaw models set <模型id>
 ```
 
 例如（具体 id 以 `openclaw models list` 为准）：
+
 - `openclaw models set moonshot/kimi-k2.5`
 - `openclaw models set minimax/MiniMax-M2.5`
 
@@ -583,6 +648,7 @@ openclaw models fallbacks clear     # 清空备用列表
 ```
 
 例如把 Kimi 加为备用（id 以 list 为准）：
+
 ```powershell
 openclaw models fallbacks add moonshot/kimi-k2.5
 ```
@@ -591,50 +657,50 @@ openclaw models fallbacks add moonshot/kimi-k2.5
 
 ### 6.3 日常流程小结
 
-| 场景 | 操作 |
-|------|------|
-| 临时用一下 | `openclaw gateway run --port 18790`，保持窗口不关 → 浏览器打开 18790 或 `openclaw dashboard` |
-| 开机就可用 | 已执行过 `gateway install` 时，开机后执行 `openclaw gateway start`（或等自启） |
-| 换默认模型 | `openclaw models set <模型id>`，必要时 `openclaw gateway restart` |
-| 加一个备用模型 | `openclaw models fallbacks add <id>` |
-| 看是否在跑 | `openclaw gateway status`；看模型状态用 `openclaw models status --plain` |
+| 场景           | 操作                                                                                         |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| 临时用一下     | `openclaw gateway run --port 18790`，保持窗口不关 → 浏览器打开 18790 或 `openclaw dashboard` |
+| 开机就可用     | 已执行过 `gateway install` 时，开机后执行 `openclaw gateway start`（或等自启）               |
+| 换默认模型     | `openclaw models set <模型id>`，必要时 `openclaw gateway restart`                            |
+| 加一个备用模型 | `openclaw models fallbacks add <id>`                                                         |
+| 看是否在跑     | `openclaw gateway status`；看模型状态用 `openclaw models status --plain`                     |
 
 ---
 
 ## 七、常用命令速查
 
-| 命令 | 说明 |
-|------|------|
-| `openclaw --version` | 查看版本 |
-| `openclaw doctor` | 环境诊断 |
-| `openclaw gateway status` | 查看网关是否在跑 |
-| `openclaw gateway run --port 18790` | 前台启动网关（保持窗口不关） |
-| `openclaw gateway start` / `stop` / `restart` | 服务方式启动/停止/重启（需先 `gateway install`） |
-| `openclaw dashboard` | 打开 Control UI（浏览器） |
-| `openclaw models list` | 列出模型 |
-| `openclaw models set <id>` | 设置默认模型 |
-| `openclaw models status --plain` | 查看当前默认与 fallback |
-| `openclaw models fallbacks add/list/remove/clear` | 管理备用模型 |
-| `openclaw models auth add` | 添加模型认证（API Key 等） |
-| `openclaw onboard` | 运行配置向导（模型、Channel、Skills 等） |
-| `openclaw channels add` / `channels list` | 添加/查看渠道（如飞书） |
-| `openclaw skills list` | 查看已安装技能 |
-| `openclaw logs --follow` | 实时查看日志（排错用） |
+| 命令                                              | 说明                                             |
+| ------------------------------------------------- | ------------------------------------------------ |
+| `openclaw --version`                              | 查看版本                                         |
+| `openclaw doctor`                                 | 环境诊断                                         |
+| `openclaw gateway status`                         | 查看网关是否在跑                                 |
+| `openclaw gateway run --port 18790`               | 前台启动网关（保持窗口不关）                     |
+| `openclaw gateway start` / `stop` / `restart`     | 服务方式启动/停止/重启（需先 `gateway install`） |
+| `openclaw dashboard`                              | 打开 Control UI（浏览器）                        |
+| `openclaw models list`                            | 列出模型                                         |
+| `openclaw models set <id>`                        | 设置默认模型                                     |
+| `openclaw models status --plain`                  | 查看当前默认与 fallback                          |
+| `openclaw models fallbacks add/list/remove/clear` | 管理备用模型                                     |
+| `openclaw models auth add`                        | 添加模型认证（API Key 等）                       |
+| `openclaw onboard`                                | 运行配置向导（模型、Channel、Skills 等）         |
+| `openclaw channels add` / `channels list`         | 添加/查看渠道（如飞书）                          |
+| `openclaw skills list`                            | 查看已安装技能                                   |
+| `openclaw logs --follow`                          | 实时查看日志（排错用）                           |
 
 ---
 
 ## 八、常见坑汇总
 
-| 问题 | 可能原因 | 处理方式 |
-|------|----------|----------|
-| `openclaw` 命令找不到 | PATH 未更新或安装失败 | 重启 PowerShell；用 `npx openclaw` 临时测试 |
-| 浏览器访问 127.0.0.1:18789 连接被拒绝 | Gateway 未启动 | 先执行 `openclaw gateway --port 18790` 并保持窗口不关，再访问 18790 |
-| 飞书机器人不回复 | 未发布应用 / 权限未开通 / 未选长连接 | 检查飞书后台；重启 gateway；看 logs |
-| API Key 验证失败 | Key 错误或已过期 | 去对应平台检查、重新复制 |
-| 端口 18789 被占用 | 本机其他程序占用 | 改端口：`openclaw gateway --port 18790` |
-| Hooks 步骤按 Enter 无反应 | TUI 需先勾选再提交 | 先按**空格**再按 Enter；或 Ctrl+C 退出后重跑 onboard |
-| AI 不执行工具命令 | tools.profile 为 safe | 执行 `openclaw config set tools.profile full` |
-| PowerShell 禁止脚本 | 执行策略限制 | `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser` |
+| 问题                                  | 可能原因                             | 处理方式                                                            |
+| ------------------------------------- | ------------------------------------ | ------------------------------------------------------------------- |
+| `openclaw` 命令找不到                 | PATH 未更新或安装失败                | 重启 PowerShell；用 `npx openclaw` 临时测试                         |
+| 浏览器访问 127.0.0.1:18789 连接被拒绝 | Gateway 未启动                       | 先执行 `openclaw gateway --port 18790` 并保持窗口不关，再访问 18790 |
+| 飞书机器人不回复                      | 未发布应用 / 权限未开通 / 未选长连接 | 检查飞书后台；重启 gateway；看 logs                                 |
+| API Key 验证失败                      | Key 错误或已过期                     | 去对应平台检查、重新复制                                            |
+| 端口 18789 被占用                     | 本机其他程序占用                     | 改端口：`openclaw gateway --port 18790`                             |
+| Hooks 步骤按 Enter 无反应             | TUI 需先勾选再提交                   | 先按**空格**再按 Enter；或 Ctrl+C 退出后重跑 onboard                |
+| AI 不执行工具命令                     | tools.profile 为 safe                | 执行 `openclaw config set tools.profile full`                       |
+| PowerShell 禁止脚本                   | 执行策略限制                         | `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`               |
 
 ---
 
@@ -695,17 +761,17 @@ npm config set registry https://registry.npmjs.org
 
 ## 十、推荐学习资源
 
-- 官方文档：https://docs.openclaw.ai/getting-started  
-- 中文快速开始：https://openclawgithub.cc/guide/start/  
-- 飞书接入：https://docs.openclaw.ai/zh-CN/channels/feishu  
-- 中文教程合集：https://github.com/xianyu110/awesome-openclaw-tutorial  
-- 中文一键安装脚本：https://github.com/736773174/openclaw-setup-cn  
+- 官方文档：https://docs.openclaw.ai/getting-started
+- 中文快速开始：https://openclawgithub.cc/guide/start/
+- 飞书接入：https://docs.openclaw.ai/zh-CN/channels/feishu
+- 中文教程合集：https://github.com/xianyu110/awesome-openclaw-tutorial
+- 中文一键安装脚本：https://github.com/736773174/openclaw-setup-cn
 
 ---
 
 ## 十一、建议执行顺序总览
 
-第一次看本文档时，建议先读开头「文档说明」和「文档结构」，再按下面顺序操作；已熟悉的可直接按本节约步骤执行。
+第一次看本文档时，建议先读开头「文档说明」和「文档结构」，再按下面顺序操作；已熟悉的可直接按本节约步骤执行。![1773322132311](image/OpenClaw-0到1部署教程/1773322132311.png)
 
 **第一步（先打开图形界面）**
 
