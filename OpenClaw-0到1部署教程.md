@@ -540,6 +540,34 @@ openclaw onboard
 
 **说明**：飞书通道「只收不回」在社区有反馈（如 GitHub #31859、#38980），可能与回复路由/流式计数有关；若上述仍无效，可关注 OpenClaw 更新或对应 issue 的修复说明。
 
+#### 4.2.11 恢复初始状态、重新配置（reset）
+
+若配置乱了或想**清空后从头再配**（CLI 保留，只删配置与状态）：
+
+1. **先停掉 Gateway**（若在跑）  
+   - 若是前台 `gateway run`：关掉该窗口。  
+   - 若是服务：`openclaw gateway stop`。
+
+2. **执行重置（三选一）**  
+   - **只清配置**：`openclaw reset --scope config --yes`  
+   - **清配置 + 凭据 + 会话**：`openclaw reset --scope config+creds+sessions --yes`  
+   - **彻底清空（推荐恢复“初始状态”）**：`openclaw reset --scope full --yes`  
+
+   不加 `--yes` 时会交互确认，可按提示选择 scope。
+
+3. **（可选）卸载网关服务 + 本地数据**  
+   若还想删掉已安装的 Gateway 服务与本地数据（CLI 仍保留）：  
+   `openclaw uninstall --state --yes`  
+   或连服务一起删：`openclaw uninstall --service --state --yes`。
+
+4. **重新走一遍配置**  
+   ```powershell
+   openclaw onboard --install-daemon
+   ```  
+   按教程「第一步」只做到打开图形界面，再按「第二步」配模型、飞书等。
+
+**注意**：`reset --scope full` / `uninstall --state` 会删掉 `~/.openclaw` 下的配置、凭据、会话等，**不可恢复**；若有需要请先备份 `%USERPROFILE%\.openclaw` 再操作。
+
 ---
 
 ### 4.3 第二步三：安装 Skills（可选）
