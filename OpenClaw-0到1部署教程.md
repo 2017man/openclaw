@@ -36,10 +36,12 @@
 | **三、第一步** | 运行 onboard 向导并**全部跳过**，手动启动 Gateway，打开 Dashboard |
 | **四、第二步** | 按优先级：4.1 模型 → 4.2 飞书 → 4.3 Skills → 4.4 Hooks |
 | **五** | 让 AI 能执行工具命令（创建文件等） |
-| **六** | 常用命令速查 |
-| **七** | 常见坑汇总 |
-| **八** | 推荐学习资源 |
-| **九** | 建议执行顺序总览（可打印照着做） |
+| **六** | **后续日常**：怎么启动 OpenClaw、怎么管理模型 |
+| **七** | 常用命令速查 |
+| **八** | 常见坑汇总 |
+| **九** | 附录：国内环境安装 Node.js / npm |
+| **十** | 推荐学习资源 |
+| **十一** | 建议执行顺序总览（可打印照着做） |
 
 ---
 
@@ -491,24 +493,137 @@ openclaw gateway restart
 
 ---
 
-## 六、常用命令速查
+## 六、后续日常：怎么启动 OpenClaw、怎么管理模型
+
+部署完成后，每次要用 OpenClaw（本机 Dashboard 或飞书指挥家里），都需要**先让 Gateway 在跑**；模型可以随时添加、切换默认、配置备用。
+
+### 6.1 怎么启动 OpenClaw（两种方式）
+
+#### 方式一：前台运行（你目前用的）
+
+适合临时用、调试、或还没装服务时。
+
+1. 打开 **PowerShell**，执行（端口按你实际用的，例如 18790）：
+   ```powershell
+   openclaw gateway run --port 18790
+   ```
+2. **不要关这个窗口**，关掉 = Gateway 停掉，飞书/Dashboard 会连不上。
+3. 打开控制台：浏览器访问 `http://127.0.0.1:18790`，或执行：
+   ```powershell
+   openclaw dashboard
+   ```
+
+**说明**：`gateway run` 等于“前台运行”；若你之前用的是 `openclaw gateway --port 18790`，在新版本里等价于 `openclaw gateway run --port 18790`。
+
+#### 方式二：安装为系统服务（开机自启、后台常驻）
+
+适合家里笔记本常开、希望开机就自动跑 OpenClaw 时。
+
+1. **安装服务**（建议用管理员 PowerShell）：
+   ```powershell
+   openclaw gateway install --port 18790
+   ```
+   若需要 Token 鉴权，可加：`--token 你的令牌`。
+2. **启动 / 停止 / 重启**：
+   ```powershell
+   openclaw gateway start    # 启动
+   openclaw gateway stop     # 停止
+   openclaw gateway restart  # 重启
+   ```
+3. **看是否在跑**：
+   ```powershell
+   openclaw gateway status
+   ```
+
+装好后，重启电脑一般会自动启动 Gateway（视 Windows 计划任务/服务配置而定）。
+
+---
+
+### 6.2 怎么管理模型
+
+#### 查看当前模型与状态
+
+```powershell
+openclaw models list          # 列出（已配置/可选）模型
+openclaw models status        # 当前默认模型、fallback 等状态（可加 --plain）
+openclaw models status --plain
+```
+
+#### 设置默认模型
+
+```powershell
+openclaw models set <模型id>
+```
+
+例如（具体 id 以 `openclaw models list` 为准）：
+- `openclaw models set moonshot/kimi-k2.5`
+- `openclaw models set minimax/MiniMax-M2.5`
+
+#### 添加新模型（新厂商/新 Key）
+
+- **交互式**（推荐）：再跑一次向导，选模型/填 Key：
+  ```powershell
+  openclaw onboard
+  ```
+  或只加认证配置：
+  ```powershell
+  openclaw models auth add
+  ```
+- 加完后用 `openclaw models set <id>` 设为默认（可选）。
+
+#### 管理备用模型（fallback）
+
+主模型失败（如余额不足、超时）时会自动切到备用。
+
+```powershell
+openclaw models fallbacks list      # 查看当前备用列表
+openclaw models fallbacks add <id>  # 添加一个备用
+openclaw models fallbacks remove <id>  # 移除
+openclaw models fallbacks clear     # 清空备用列表
+```
+
+例如把 Kimi 加为备用（id 以 list 为准）：
+```powershell
+openclaw models fallbacks add moonshot/kimi-k2.5
+```
+
+---
+
+### 6.3 日常流程小结
+
+| 场景 | 操作 |
+|------|------|
+| 临时用一下 | `openclaw gateway run --port 18790`，保持窗口不关 → 浏览器打开 18790 或 `openclaw dashboard` |
+| 开机就可用 | 已执行过 `gateway install` 时，开机后执行 `openclaw gateway start`（或等自启） |
+| 换默认模型 | `openclaw models set <模型id>`，必要时 `openclaw gateway restart` |
+| 加一个备用模型 | `openclaw models fallbacks add <id>` |
+| 看是否在跑 | `openclaw gateway status`；看模型状态用 `openclaw models status --plain` |
+
+---
+
+## 七、常用命令速查
 
 | 命令 | 说明 |
 |------|------|
 | `openclaw --version` | 查看版本 |
 | `openclaw doctor` | 环境诊断 |
-| `openclaw gateway status` | 查看网关状态 |
-| `openclaw gateway --port 18790` | 启动网关（指定端口，保持窗口不关） |
-| `openclaw onboard` | 再次运行配置向导（第二步配模型、Channel 等） |
-| `openclaw models add` | 添加 AI 模型（第二步一） |
-| `openclaw channels add` | 添加渠道如飞书（第二步二） |
-| `openclaw channels list` | 查看已配置渠道 |
+| `openclaw gateway status` | 查看网关是否在跑 |
+| `openclaw gateway run --port 18790` | 前台启动网关（保持窗口不关） |
+| `openclaw gateway start` / `stop` / `restart` | 服务方式启动/停止/重启（需先 `gateway install`） |
+| `openclaw dashboard` | 打开 Control UI（浏览器） |
+| `openclaw models list` | 列出模型 |
+| `openclaw models set <id>` | 设置默认模型 |
+| `openclaw models status --plain` | 查看当前默认与 fallback |
+| `openclaw models fallbacks add/list/remove/clear` | 管理备用模型 |
+| `openclaw models auth add` | 添加模型认证（API Key 等） |
+| `openclaw onboard` | 运行配置向导（模型、Channel、Skills 等） |
+| `openclaw channels add` / `channels list` | 添加/查看渠道（如飞书） |
 | `openclaw skills list` | 查看已安装技能 |
 | `openclaw logs --follow` | 实时查看日志（排错用） |
 
 ---
 
-## 七、常见坑汇总
+## 八、常见坑汇总
 
 | 问题 | 可能原因 | 处理方式 |
 |------|----------|----------|
@@ -523,11 +638,11 @@ openclaw gateway restart
 
 ---
 
-## 八、附录：国内环境安装 Node.js / npm（Windows）
+## 九、附录：国内环境安装 Node.js / npm（Windows）
 
 OpenClaw 依赖 **Node.js 22+**。如果你在国内网络下载/安装 Node 不顺，按本节做。
 
-### 8.1 方式 A（最稳）：直接安装官方 Node MSI
+### 9.1 方式 A（最稳）：直接安装官方 Node MSI
 
 1. 打开 Node 官网下载页并选择 **LTS**（Windows x64）：`https://nodejs.org/`
 2. 下载 `.msi` 后双击安装，安装选项保持默认即可。
@@ -540,7 +655,7 @@ npm --version
 
 **坑**：若公司/家庭网络访问 `nodejs.org` 很慢，可改用浏览器搜索「Node.js LTS Windows x64 MSI」并从可信镜像下载；安装包来源务必可信。
 
-### 8.2 方式 B（多版本管理）：nvm-windows
+### 9.2 方式 B（多版本管理）：nvm-windows
 
 适合你需要在不同项目间切换 Node 版本。
 
@@ -555,7 +670,7 @@ node --version
 
 **坑**：安装目录尽量用默认，避免路径里有中文或空格导致少数工具兼容问题。
 
-### 8.3 npm 国内镜像（可选但推荐）
+### 9.3 npm 国内镜像（可选但推荐）
 
 若 `npm install` 速度慢，可切到国内 registry：
 
@@ -570,7 +685,7 @@ npm config get registry
 npm config set registry https://registry.npmjs.org
 ```
 
-### 8.4 常见问题
+### 9.4 常见问题
 
 - **装完 Node 但 `node`/`npm` 仍提示找不到**：关闭所有终端窗口，重新打开 PowerShell；仍不行就重启电脑（通常是 PATH 未刷新）。
 - **权限问题（EACCES/EPERM）**：用「管理员身份运行 PowerShell」再执行安装命令；或确保你有写入 npm 全局目录的权限。
@@ -578,7 +693,7 @@ npm config set registry https://registry.npmjs.org
 
 ---
 
-## 八、推荐学习资源
+## 十、推荐学习资源
 
 - 官方文档：https://docs.openclaw.ai/getting-started  
 - 中文快速开始：https://openclawgithub.cc/guide/start/  
@@ -588,7 +703,7 @@ npm config set registry https://registry.npmjs.org
 
 ---
 
-## 九、建议执行顺序总览
+## 十一、建议执行顺序总览
 
 第一次看本文档时，建议先读开头「文档说明」和「文档结构」，再按下面顺序操作；已熟悉的可直接按本节约步骤执行。
 
